@@ -145,18 +145,24 @@ def internal_actions():
         {
             "id": "act_deadbeef1234",
             "name": "metrics",
+            "method": "GET",
+            "endpoint": "/actions/act_deadbeef1234",
             "target": "/metrics"
         },
         {
             "id": "act_7f3a9c2e1b48",
             "name": "webhook_test",
+            "method": "POST",
+            "endpoint": "/actions/act_7f3a9c2e1b48",
             "target": "/status"
         },
         {
             "id": "act_cafebabe5678",
             "name": "healthcheck",
+            "method": "GET",
+            "endpoint": "/actions/act_cafebabe5678",
             "target": "/health"
-        },
+        }
     ])
 @app.route("/robots.txt")
 def robots():
