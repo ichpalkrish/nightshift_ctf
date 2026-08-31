@@ -149,7 +149,11 @@ def leaked_actions():
             {"id": "act_2c3d4e5f6a7b", "name": "export_audit_log"},
         ]
     })
-
+@app.route("/robots.txt")
+def robots():
+    return "User-agent: *\nDisallow: /internal/actions\n", 200, {
+        "Content-Type": "text/plain"
+    }
 
 @app.route("/actions/<action_id>", methods=["POST"])
 def invoke_action(action_id):
