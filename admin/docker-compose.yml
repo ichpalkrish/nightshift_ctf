@@ -12,20 +12,15 @@ services:
 
   ops-server:
     build: ./ops-server
-    platform: linux/amd64  # REQUIRED on Apple Silicon: the pinned vulnerable
-                            # sudo .deb is amd64-only. Docker Desktop emulates
-                            # this via QEMU automatically. Build/runtime will
-                            # be slower than native arm64, but this keeps the
-                            # exact package the exploit was actually verified
-                            # against, rather than an untested arm64 build.
+    platform: linux/amd64
     hostname: internal-fileserver
-    # :8080 (HTTP files+uploads) is intentionally NOT published — only
-    # reachable from inside nightshift_net, i.e. only via the web app's SSRF.
     ports:
       - "2121:21"
       - "30000-30009:30000-30009"
     networks:
-      - nightshift_net
+      nightshift_net:
+        aliases:
+          - internal-fileserver
 
 networks:
   nightshift_net:
