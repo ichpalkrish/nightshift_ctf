@@ -35,6 +35,7 @@ RUN useradd -r -m -s /usr/sbin/nologin www-data 2>/dev/null || true
 # ---- application layout ----
 RUN mkdir -p /var/www/html/files /var/www/html/uploads
 COPY files/ /var/www/html/files/
+COPY status /var/www/html/status
 RUN chmod -R go+r /var/www/html/files && find /var/www/html/files -type d -exec chmod 755 {} \;
 RUN chown -R www-data:www-data /var/www/html/uploads && chmod 755 /var/www/html/uploads
 

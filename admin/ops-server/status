@@ -1,0 +1,5 @@
+Nightshift Internal Service Status
+
+service: healthy
+artifact_store: /files/
+upload_store: /uploads/

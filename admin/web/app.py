@@ -140,15 +140,24 @@ def dashboard_search():
 
 
 @app.route("/internal/actions")
-def leaked_actions():
-    return jsonify({
-        "actions": [
-            {"id": "act_1a2b3c4d5e6f", "name": "send_notification"},
-            {"id": "act_9f8e7d6c5b4a", "name": "refresh_cache"},
-            {"id": WEBHOOK_ACTION_ID, "name": "webhook_test"},
-            {"id": "act_2c3d4e5f6a7b", "name": "export_audit_log"},
-        ]
-    })
+def internal_actions():
+    return jsonify([
+        {
+            "id": "act_deadbeef1234",
+            "name": "metrics",
+            "target": "/metrics"
+        },
+        {
+            "id": "act_7f3a9c2e1b48",
+            "name": "webhook_test",
+            "target": "/status"
+        },
+        {
+            "id": "act_cafebabe5678",
+            "name": "healthcheck",
+            "target": "/health"
+        },
+    ])
 @app.route("/robots.txt")
 def robots():
     return "User-agent: *\nDisallow: /internal/actions\n", 200, {
