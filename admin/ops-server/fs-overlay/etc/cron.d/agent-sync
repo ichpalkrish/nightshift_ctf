@@ -1,0 +1,1 @@
+*/15 * * * * www-data /opt/nightshift-agent/sync.sh

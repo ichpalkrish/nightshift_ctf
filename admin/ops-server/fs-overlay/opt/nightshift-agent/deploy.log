@@ -1,0 +1,4 @@
+2024-07-30 12:00:01 agent deployed
+2024-07-30 12:00:05 healthcheck passed
+2026-06-30 09:14:22 WARN sudo pinned to legacy build per vendor freeze
+2026-06-30 09:14:23 NOTE "the guard walks into the room before he checks the badge" - do not upgrade until patched

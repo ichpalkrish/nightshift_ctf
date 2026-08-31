@@ -1,0 +1,4 @@
+client
+dev tun
+proto udp
+remote vpn.nightshift-corp.example 1194

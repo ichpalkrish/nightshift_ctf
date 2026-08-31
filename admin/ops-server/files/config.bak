@@ -1,0 +1,4 @@
+db_host=localhost
+db_port=5432
+debug=false
+log_level=warn
